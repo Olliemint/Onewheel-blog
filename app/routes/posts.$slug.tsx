@@ -1,17 +1,28 @@
 import { LoaderFunction,json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { marked } from "marked"
 import { getPost } from "~/models/posts.server"
 import { useParams } from "@remix-run/react"
+import invariant from "tiny-invariant"
+import { as } from "vitest/dist/reporters-cb94c88b"
 
+type LoaderData = {
+  title: string
+  slug: string
+  content: string
+}
 
 export const loader: LoaderFunction = async ({ params }) => { 
     const { slug } = params
+    invariant(slug,"slug is required")
   const post = await getPost(slug)
-  return json({post})
+  invariant(post,`post not found for  ${slug}`)
+  const content = marked(post.markdown)
+  return json<LoaderData>({title:post.title,slug:post.slug,content})
 }
 
 export default function PostRoute() {
-  const {post} = useLoaderData()
+  const { title, slug, content } = useLoaderData() as LoaderData;
   
  
   return (
@@ -22,11 +33,12 @@ export default function PostRoute() {
         className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
       >
         <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {post.slug}
+          {slug}
         </h5>
         <p className="font-normal text-gray-700 dark:text-gray-400">
-          {post.title}
+          {title}
         </p>
+        <div className="py-4 text-black dark:text-slate-200" dangerouslySetInnerHTML={{__html:content}} />
       </div>
     </div>
   );
