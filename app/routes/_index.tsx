@@ -65,7 +65,13 @@ export default function Index() {
             </div>
           </div>
         </div>
-
+        <div className="flex items-center justify-center mt-10">
+          <Link to={"/posts"}>
+            <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+              View Posts
+            </button>
+          </Link>
+        </div>
         <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
           <div className="mt-6 flex flex-wrap justify-center gap-8">
             {[
