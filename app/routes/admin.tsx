@@ -1,11 +1,15 @@
 import { LoaderFunction, json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData } from '@remix-run/react';
 import { getPosts } from '~/models/posts.server';
+import { requireAdminUser } from '~/session.server';
 
 type LoaderData = {
   posts: Awaited<ReturnType<typeof getPosts>>;
 };
-export const loader: LoaderFunction = async () => {
+
+
+export const loader: LoaderFunction = async ({request}) => {
+   await requireAdminUser(request);
   const posts = await getPosts();
     return json<LoaderData>( {posts} );
 };
@@ -22,7 +26,7 @@ export default function AdminRoute() {
           <ul>
             {posts.map((post) => (
               <li key={post.slug}>
-                <Link to={post.slug}>{post.title}</Link>
+                <Link prefetch='intent' to={post.slug}>{post.title}</Link>
               </li>
             ))}
           </ul>

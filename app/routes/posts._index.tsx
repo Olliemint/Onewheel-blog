@@ -2,6 +2,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { getPosts } from "~/models/posts.server";
+import { useAdminUser } from "~/utils";
 
 type LoaderData = {
   posts: Awaited<ReturnType<typeof getPosts>>;
@@ -12,32 +13,35 @@ export const loader: LoaderFunction = async () => {
 };
 
 export default function PostRoute() {
-  const {posts} = useLoaderData<LoaderData>();
+  const { posts } = useLoaderData<LoaderData>();
+  const isAdmin = useAdminUser();
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-0 ">
       <h1 className="py-4">Posts</h1>
-      <Link
-        to="/admin"
-        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 my-4"
-      >
-        Go to Admin
-        <svg
-          className="w-3.5 h-3.5 ml-2"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 10"
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 my-4"
         >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M1 5h12m0 0L9 1m4 4L9 9"
-          />
-        </svg>
-      </Link>
-      <div className="w-full flex flex-col gap-y-4 sm:flex-row sm:gap-x-4">
+          Go to Admin
+          <svg
+            className="w-3.5 h-3.5 ml-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+            />
+          </svg>
+        </Link>
+      )}
+      <div className="w-full flex flex-wrap gap-y-4  sm:gap-x-4">
         {posts.map((post) => (
           <Link
             to={post.slug}

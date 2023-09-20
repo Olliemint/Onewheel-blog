@@ -1,5 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -8,21 +8,33 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
+import { getEnv } from "./env.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({ user: await getUser(request) });
+type LoaderData = {
+  user: Awaited<ReturnType<typeof getUser>>;
+  ENV: ReturnType<typeof getEnv>;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  return json<LoaderData>({
+    user: await getUser(request),
+    ENV: getEnv(),
+  });
 };
 
 export default function App() {
+  const data = useLoaderData<LoaderData>();
+  console.log(data);
   return (
     <html lang="en" className="h-full">
       <head>
@@ -35,6 +47,7 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
+        <script dangerouslySetInnerHTML={{__html:`window.ENV = ${JSON.stringify(data.ENV)}`}} />
         <LiveReload />
       </body>
     </html>

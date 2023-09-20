@@ -4,7 +4,6 @@ import { marked } from "marked"
 import { getPost } from "~/models/posts.server"
 import { useParams } from "@remix-run/react"
 import invariant from "tiny-invariant"
-import { as } from "vitest/dist/reporters-cb94c88b"
 
 type LoaderData = {
   title: string
